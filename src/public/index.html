@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Humanoid-BioBots | Star Craft™ Productions</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:   #0a0b0d;
+      --dark:    #111318;
+      --panel:   #161b24;
+      --border:  #1e2a3a;
+      --accent:  #00d4ff;
+      --gold:    #f5c842;
+      --green:   #00e87a;
+      --red:     #ff3b3b;
+      --yellow:  #ffd44a;
+      --text:    #d0dde8;
+      --muted:   #5a6a7a;
+      --radius:  10px;
+      --glow:    0 0 18px rgba(0,212,255,.35);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    h1,h2,h3,h4 { color: #fff; font-weight: 700; }
+    code { font-family: 'Courier New', monospace; font-size: .9em; }
+
+    /* ── Nav ──────────────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,11,13,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 24px; height: 56px;
+      overflow-x: auto;
+    }
+    nav a {
+      color: var(--muted); font-size: .82rem; font-weight: 600;
+      letter-spacing: .04em; text-transform: uppercase;
+      padding: 6px 10px; border-radius: 6px; white-space: nowrap;
+      transition: color .2s, background .2s;
+    }
+    nav a:hover { color: var(--accent); background: rgba(0,212,255,.08); }
+    .nav-brand {
+      color: var(--gold) !important; font-size: .9rem !important;
+      margin-right: auto;
+    }
+
+    /* ── Layout helpers ───────────────────────────────────────────────── */
+    .section {
+      max-width: 1100px; margin: 0 auto;
+      padding: 80px 24px;
+    }
+    .section-label {
+      font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 2rem; font-weight: 800; margin-bottom: 12px;
+    }
+    .section-sub {
+      color: var(--muted); max-width: 680px; margin-bottom: 40px;
+    }
+    .divider {
+      border: none; border-top: 1px solid var(--border);
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    @media(max-width:700px) {
+      .grid2,.grid3 { grid-template-columns: 1fr; }
+    }
+    .tag {
+      display: inline-block; font-size:.72rem; font-weight:700;
+      letter-spacing:.06em; text-transform:uppercase;
+      padding: 3px 9px; border-radius: 20px; margin: 2px;
+    }
+    .tag-blue  { background: rgba(0,212,255,.12); color: var(--accent); }
+    .tag-gold  { background: rgba(245,200,66,.12); color: var(--gold); }
+    .tag-green { background: rgba(0,232,122,.12);  color: var(--green); }
+    .tag-red   { background: rgba(255,59,59,.12);  color: var(--red); }
+    .tag-muted { background: rgba(90,106,122,.15); color: var(--muted); }
+
+    /* ── Hero ─────────────────────────────────────────────────────────── */
+    #hero {
+      position: relative; overflow: hidden;
+      min-height: 100vh; display: flex; align-items: center;
+      background: radial-gradient(ellipse 120% 80% at 50% -10%,
+        rgba(0,212,255,.10) 0%, transparent 60%),
+        var(--black);
+    }
+    .hero-inner { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border); border-radius: 20px;
+      padding: 5px 14px; font-size: .78rem; color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .hero-badge span { color: var(--gold); }
+    .hero-title {
+      font-size: clamp(2.4rem,6vw,4.2rem);
+      font-weight: 900; letter-spacing: -.02em; line-height: 1.08;
+      margin-bottom: 20px;
+    }
+    .hero-title em { font-style: normal; color: var(--accent); }
+    .hero-desc { font-size: 1.1rem; color: var(--muted); max-width: 620px; margin-bottom: 36px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 8px; font-weight: 700;
+      font-size: .92rem; cursor: pointer; border: none; transition: .2s;
+    }
+    .btn-primary {
+      background: var(--accent); color: var(--black);
+      box-shadow: var(--glow);
+    }
+    .btn-primary:hover { opacity: .88; }
+    .btn-outline {
+      background: transparent; color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .btn-outline:hover { background: rgba(0,212,255,.08); }
+    .hero-brands {
+      margin-top: 56px; display: flex; flex-wrap: wrap; gap: 24px;
+      align-items: center;
+    }
+    .hero-brands span {
+      font-size: .78rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .hero-brands strong { color: var(--gold); }
+
+    /* ── Stack diagram ────────────────────────────────────────────────── */
+    .stack-wrap {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .stack-layer {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; border-radius: 8px;
+      border-left: 4px solid;
+      transition: transform .15s;
+    }
+    .stack-layer:hover { transform: translateX(4px); }
+    .sl-be   { background: rgba(255,255,255,.04); border-color: #e0e0e0; }
+    .sl-li   { background: rgba(200,230,255,.04); border-color: #7ec8e3; }
+    .sl-yb   { background: rgba(180,120,240,.06); border-color: #b47cef; }
+    .sl-in   { background: rgba(255,200,100,.05); border-color: #f5a623; }
+    .sl-mg   { background: rgba(80,200,120,.05);  border-color: #50c878; }
+    .sl-num  {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items:center; justify-content: center;
+      font-weight: 900; font-size: .95rem; flex-shrink: 0;
+      background: rgba(255,255,255,.07);
+    }
+    .sl-info h4 { font-size: .95rem; margin-bottom: 2px; }
+    .sl-info p  { font-size: .78rem; color: var(--muted); }
+    .sl-badge   { margin-left: auto; font-size: .7rem; }
+
+    /* ── Form elements ────────────────────────────────────────────────── */
+    label { display: block; font-size: .8rem; font-weight: 600;
+      color: var(--muted); margin-bottom: 6px; }
+    input[type=text], input[type=number], textarea, select {
+      width: 100%; background: var(--dark); border: 1px solid var(--border);
+      color: var(--text); border-radius: 7px; padding: 10px 14px;
+      font-size: .9rem; outline: none; transition: border .2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    .form-row { margin-bottom: 18px; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .checkbox-group label {
+      display: flex; align-items: center; gap: 6px;
+      cursor: pointer; color: var(--text); font-size: .85rem;
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 7px; padding: 8px 14px;
+      transition: border-color .2s;
+    }
+    .checkbox-group label:hover { border-color: var(--accent); }
+    .checkbox-group input { width: auto; }
+
+    /* ── Result boxes ─────────────────────────────────────────────────── */
+    .result-box {
+      margin-top: 22px; padding: 20px; border-radius: var(--radius);
+      background: var(--dark); border: 1px solid var(--border);
+      display: none;
+    }
+    .result-box.show { display: block; }
+    .safety-green { border-color: var(--green); }
+    .safety-yellow{ border-color: var(--yellow); }
+    .safety-red   { border-color: var(--red); }
+    .rule-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: .84rem;
+    }
+    .rule-row:last-child { border: none; }
+    .rule-icon { font-size: 1rem; flex-shrink:0; }
+
+    /* ── Gallery cards ────────────────────────────────────────────────── */
+    #gallery-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 20px; }
+    .build-card { padding: 20px; }
+    .build-card h4 { margin-bottom: 6px; }
+    .build-card .parts-list { margin-top: 10px; }
+    .build-card .part-chip {
+      display: inline-block; font-size:.72rem; padding: 3px 9px;
+      border-radius: 20px; margin: 2px;
+      background: rgba(0,212,255,.10); color: var(--accent);
+      border: 1px solid rgba(0,212,255,.2);
+    }
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: var(--muted);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Nuclear hull ─────────────────────────────────────────────────── */
+    .hull-diagram {
+      display: flex; flex-direction: column; gap: 0;
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .hull-layer {
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .hl-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items:center; justify-content:center;
+      font-weight: 900; font-size: .85rem; flex-shrink: 0;
+    }
+    .hl-info h4 { font-size: .9rem; }
+    .hl-info p  { font-size: .78rem; color: var(--muted); }
+    .hl-role { margin-left: auto; font-size:.72rem; font-weight:700;
+      letter-spacing:.04em; text-transform:uppercase; }
+    .h1  { background:rgba(220,100,100,.09); }
+    .h2  { background:rgba(200,200,100,.08); }
+    .h3  { background:rgba(100,200,220,.09); }
+    .h4l { background:rgba(120,80,200,.10); }
+    .h5  { background:rgba(80,200,120,.08); }
+    .h6  { background:rgba(200,180,80,.08); }
+    .h7  { background:rgba(60,160,255,.09); }
+    .h8  { background:rgba(255,130,60,.09); }
+    .h9  { background:rgba(220,60,220,.10); }
+
+    /* ── Coin economy ─────────────────────────────────────────────────── */
+    .coin-table { width:100%; border-collapse: collapse; }
+    .coin-table th, .coin-table td {
+      text-align: left; padding: 10px 14px;
+      border-bottom: 1px solid var(--border); font-size:.85rem;
+    }
+    .coin-table th { color: var(--muted); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; }
+    .coin-table tr:last-child td { border: none; }
+    .coin-val { color: var(--gold); font-weight:700; }
+    .habitat-checklist { list-style: none; }
+    .habitat-checklist li {
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px; font-size: .88rem;
+    }
+    .habitat-checklist li:last-child { border:none; }
+    .check-icon { color: var(--green); font-size: 1rem; }
+    .profile-row { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap:wrap; }
+    .profile-pill {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 16px; flex: 1; min-width: 140px;
+    }
+    .profile-pill h5 { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+    .profile-pill p { font-size:.88rem; }
+
+    /* ── Footer ───────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center; padding: 40px 24px;
+      color: var(--muted); font-size:.8rem;
+    }
+    footer strong { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ NAV ══════════════════════════════════════ -->
+<nav>
+  <a class="nav-brand" href="#hero">⭐ Humanoid-BioBots</a>
+  <a href="#design-lab">Design Lab</a>
+  <a href="#validator">Validator</a>
+  <a href="#build-studio">Build Studio</a>
+  <a href="#laboratory">Laboratory</a>
+  <a href="#nuclear-hull">Nuclear Hull</a>
+  <a href="#coin-economy">Coin Economy</a>
+</nav>
+
+<!-- ═══════════════════════════ HERO ═════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span>⭐</span> A Goudey Tradition™ LLC Licensed &amp; Copyrighted Product Line
+      &nbsp;·&nbsp; <span>Star Craft™ Productions</span>
+      &nbsp;·&nbsp; Fantasy Craft™ Engineers
+    </div>
+
+    <h1 class="hero-title">
+      Design. Validate.<br/>
+      <em>Build Humanoid Robots.</em>
+    </h1>
+
+    <p class="hero-desc">
+      From elemental theory to laboratory production — the world's first
+      AI-assembled biomimetic robotics platform. Design a bot in minutes,
+      validate its material stack, commission it through our scientists,
+      and track the full build in your laboratory gallery.
+    </p>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;">
+      <a href="#design-lab" class="btn btn-primary">Open Design Lab →</a>
+      <a href="#laboratory" class="btn btn-outline">View Laboratory</a>
+    </div>
+
+    <div class="hero-brands">
+      <span>Powered by</span>
+      <strong>Infinity™</strong>
+      <span>·</span>
+      <strong>eBay™ Digital Coin Series</strong>
+      <span>·</span>
+      <strong>Star Craft™ Productions</strong>
+      <span>·</span>
+      <strong>Fantasy Craft™ Engineers</strong>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ DESIGN LAB ═══════════════════════════════ -->
+<section id="design-lab" class="section">
+  <p class="section-label">Section 01</p>
+  <h2 class="section-title">Design Lab</h2>
+  <p class="section-sub">
+    Explore the five-element BioBot stack — the canonical
+    <code>Mg(12) → In(49) → Yb(70) → Li(3) → Be(4)</code> sequence
+    that mimics human anatomy from skeleton to armored skin.
+    Each element is precisely chosen for its biomechanical properties.
+  </p>
+
+  <div class="grid2">
+    <!-- Stack diagram -->
+    <div>
+      <h3 style="margin-bottom:16px;font-size:1.1rem;">
+        🦾 The BioBot Anatomy Stack
+      </h3>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px;">
+        Listed top (external) → bottom (internal)
+      </p>
+      <div class="stack-wrap">
+
+        <div class="stack-layer sl-be">
+          <div class="sl-num">4</div>
+          <div class="sl-info">
+            <h4>Beryllium (Be)</h4>
+            <p>Armored Outer Shell · Hardened Cranium / Exoskeleton Plates</p>
+            <p style="margin-top:6px;font-size:.78rem;">
+              Incredibly stiff, lightweight, resists bending under extreme heat
+              and stress. Provides a high-performance protective shell over
+              softer interior materials. Mohs 5.5 · 1.85 g/cm³
+            </p>
+          </div>
+          <span class="sl-badge tag tag-muted">External</span>
+        </div>
+
+        <div class="stack-layer sl-li">
+          <div class="sl-num">3</div>
+          <div class="sl-info">
+            <h4>Lithium (Li)</h4>
+            <p>Ultralight Actuator / Muscle Battery · Fast-twitch Muscle Groups</p>
+            <p style="margin-top:6px;font-size:.78rem;">
+              The least dense solid element on Earth — floats on water. Gives
+              the humanoid lifelike body mass without weight. Massive
+              electrochemical energy potential acts like a biological muscle
+              battery. Mohs 0.6 · 0.534 g/cm³
+            </p>
+          </div>
+          <span class="sl-badge tag tag-blue">⚠ Reactive</span>
+        </div>
+
+        <div class="stack-layer sl-yb">
+          <div class="sl-num">70</div>
+          <div class="sl-info">
+            <h4>Ytterbium (Yb)</h4>
+            <p>Dense Internal Core / Radiation Shield · Vital Organs</p>
+            <p style="margin-top:6px;font-size:.78rem;">
+              Heavy rare-earth lanthanide. Massive atomic weight gives excellent
+              radiation shielding. Soft and highly ductile — bends without
+              snapping during movement. Density 6.90 g/cm³
+            </p>
+          </div>
+          <span class="sl-badge tag tag-blue">⚠ Reactive</span>
+        </div>
+
+        <div class="stack-layer sl-in">
+          <div class="sl-num">49</div>
+          <div class="sl-info">
+            <h4>Indium (In)</h4>
+            <p>Soft Subcutaneous Tissue · Subcutaneous Fat / Cartilage</p>
+            <p style="margin-top:6px;font-size:.78rem;">
+              Post-transition metal so soft it can be cut with a kitchen knife.
+              Does not break under pressure — slowly squishes and molds,
+              absorbing heavy impacts without cracking. Mohs 1.2 · 7.31 g/cm³
+            </p>
+          </div>
+          <span class="sl-badge tag tag-green">Stable</span>
+        </div>
+
+        <div class="stack-layer sl-mg">
+          <div class="sl-num">12</div>
+          <div class="sl-info">
+            <h4>Magnesium (Mg)</h4>
+            <p>Internal Skeleton · Lightweight Skeletal Bones</p>
+            <p style="margin-top:6px;font-size:.78rem;">
+              One of the highest strength-to-weight ratios of any structural
+              metal. Light, rigid, absorbs vibrations — mimics the lightweight
+              but strong nature of porous human bone. Mohs 2.5 · 1.738 g/cm³
+            </p>
+          </div>
+          <span class="sl-badge tag tag-green">Base</span>
+        </div>
+
+      </div>
+
+      <div class="card" style="margin-top:20px;font-size:.82rem;">
+        <strong style="color:var(--red);">⚠ Behavioral Catch</strong>
+        <p style="margin-top:8px;color:var(--muted);">
+          This humanoid must live in a highly controlled environment. Lithium
+          is violently reactive with water and air; Ytterbium tarnishes easily.
+          If the sealed outer membrane were breached, the bot would combust or
+          corrode on contact with sweat or rain. Immediate re-sealing required.
+        </p>
+      </div>
+    </div>
+
+    <!-- Preset builder -->
+    <div>
+      <h3 style="margin-bottom:16px;font-size:1.1rem;">🔩 Quick-Load Presets</h3>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px;">
+        Select a preset to auto-fill the validator with a ready-made build.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:14px;" id="preset-cards">
+        <!-- filled by JS -->
+      </div>
+
+      <div class="card" style="margin-top:24px;">
+        <h4 style="margin-bottom:12px;font-size:.95rem;">📋 Part Categories</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="tag tag-blue">structure</span>
+          <span class="tag tag-gold">power</span>
+          <span class="tag tag-green">sensors</span>
+          <span class="tag tag-muted">wiring</span>
+          <span class="tag tag-red">shielding</span>
+        </div>
+        <div style="margin-top:14px;font-size:.82rem;color:var(--muted);">
+          <p><strong style="color:var(--text);">P (15)</strong> — Phosphorus · power</p>
+          <p><strong style="color:var(--text);">Cu (29)</strong> — Copper · wiring</p>
+          <p><strong style="color:var(--text);">Se (34)</strong> — Selenium · sensors</p>
+          <p><strong style="color:var(--text);">Tc (43)</strong> — Technetium · shielding</p>
+          <p><strong style="color:var(--text);">Sb (51)</strong> — Antimony · structure</p>
+          <p><strong style="color:var(--text);">U (92)</strong> — Uranium · power</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<hr class="divider" />
+
+<!-- ═══════════════════════════ VALIDATOR ════════════════════════════════ -->
+<section id="validator" class="section">
+  <p class="section-label">Section 02</p>
+  <h2 class="section-title">Build Validator</h2>
+  <p class="section-sub">
+    Enter a robot build and run it through the rule engine. The system checks
+    forbidden element pairs, required power/shielding pairs, number transforms,
+    and safety intent filters before any build enters production.
+  </p>
+
+  <div class="grid2">
+    <div>
+      <div class="form-row">
+        <label>Build Name</label>
+        <input type="text" id="v-name" placeholder="e.g. Scout-Mk2" />
+      </div>
+
+      <div class="form-row">
+        <label>Parts (JSON array — category + atomicNumber)</label>
+        <textarea id="v-parts" rows="5" placeholder='[
+  {"category":"structure","atomicNumber":51},
+  {"category":"power","atomicNumber":15},
+  {"category":"shielding","atomicNumber":43}
+]'></textarea>
+      </div>
+
+      <div class="form-row">
+        <label>Numbers (comma-separated)</label>
+        <input type="text" id="v-numbers" placeholder="51, 9, 15, 43" />
+      </div>
+
+      <div class="form-row">
+        <label>Intents</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" value="learning" /> learning</label>
+          <label><input type="checkbox" value="health-safe" /> health-safe</label>
+          <label><input type="checkbox" value="family support" /> family support</label>
+          <label><input type="checkbox" value="education" /> education</label>
+          <label><input type="checkbox" value="care" /> care</label>
+          <label><input type="checkbox" value="research" /> research</label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="runValidate()">▶ Validate Build</button>
+        <button class="btn btn-outline" onclick="clearValidator()">Clear</button>
+      </div>
+
+      <div id="validate-result" class="result-box"></div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h4 style="margin-bottom:14px;">📏 Rule Reference</h4>
+        <div style="font-size:.83rem;">
+          <div class="rule-row">
+            <span class="rule-icon">🚫</span>
+            <div><strong>Forbidden pair 51–34</strong><br/>
+            <span style="color:var(--muted);">Antimony (51) and Selenium (34) cannot appear together.</span></div>
+          </div>
+          <div class="rule-row">
+            <span class="rule-icon">✅</span>
+            <div><strong>Required pair 15–43</strong><br/>
+            <span style="color:var(--muted);">Phosphorus (15) and Technetium (43) must appear together.</span></div>
+          </div>
+          <div class="rule-row">
+            <span class="rule-icon">👥</span>
+            <div><strong>51 companion rule</strong><br/>
+            <span style="color:var(--muted);">If 51 is present, include one of: 9, 0, 92, or 10→3.</span></div>
+          </div>
+          <div class="rule-row">
+            <span class="rule-icon">🔄</span>
+            <div><strong>Transform 10 → 3</strong><br/>
+            <span style="color:var(--muted);">Number 10 is automatically mapped to 3 in derived set.</span></div>
+          </div>
+          <div class="rule-row">
+            <span class="rule-icon">🛡</span>
+            <div><strong>Safety filter</strong><br/>
+            <span style="color:var(--muted);">Intents containing weapon, kill, torture, terrorism, etc. are blocked (red). Gambling, alcohol, drug trigger yellow.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<hr class="divider" />
+
+<!-- ═══════════════════════════ BUILD STUDIO ═════════════════════════════ -->
+<section id="build-studio" class="section">
+  <p class="section-label">Section 03</p>
+  <h2 class="section-title">Build Studio</h2>
+  <p class="section-sub">
+    Submit a validated build to commission it into production. Builds are
+    recorded with a timestamp and stored in the laboratory registry.
+    Scientists are notified automatically on submission.
+  </p>
+
+  <div class="grid2">
+    <div>
+      <div class="form-row">
+        <label>Build Name</label>
+        <input type="text" id="b-name" placeholder="e.g. HabitatBot-Mk1" />
+      </div>
+
+      <div class="form-row">
+        <label>Parts (JSON array)</label>
+        <textarea id="b-parts" rows="5" placeholder='[
+  {"category":"structure","atomicNumber":51},
+  {"category":"power","atomicNumber":15},
+  {"category":"shielding","atomicNumber":43}
+]'></textarea>
+      </div>
+
+      <div class="form-row">
+        <label>Numbers (comma-separated)</label>
+        <input type="text" id="b-numbers" placeholder="51, 9, 15, 43" />
+      </div>
+
+      <div class="form-row">
+        <label>Intents</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" value="learning" id="bi-learning" /> learning</label>
+          <label><input type="checkbox" value="health-safe" id="bi-health" /> health-safe</label>
+          <label><input type="checkbox" value="education" id="bi-education" /> education</label>
+          <label><input type="checkbox" value="care" id="bi-care" /> care</label>
+          <label><input type="checkbox" value="research" id="bi-research" /> research</label>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="submitBuild()">🚀 Commission Build</button>
+      <div id="build-result" class="result-box"></div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h4 style="margin-bottom:14px;">🔬 What happens next?</h4>
+        <ol style="padding-left:18px;font-size:.85rem;display:flex;flex-direction:column;gap:10px;color:var(--muted);">
+          <li><strong style="color:var(--text);">Validation</strong> — the rule engine checks all constraints before acceptance.</li>
+          <li><strong style="color:var(--text);">Registry</strong> — accepted builds receive a unique ID and timestamp.</li>
+          <li><strong style="color:var(--text);">Material sourcing</strong> — the AI assembles element coins (structure, power, shielding, sensors, wiring) into a complete parts package.</li>
+          <li><strong style="color:var(--text);">Laboratory assignment</strong> — a scientist team is scheduled based on capacity tokens.</li>
+          <li><strong style="color:var(--text);">Production</strong> — physical assembly begins in the controlled laboratory environment.</li>
+          <li><strong style="color:var(--text);">Gallery entry</strong> — completed build card appears in the Laboratory Gallery.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+<hr class="divider" />
+
+<!-- ═══════════════════════════ LABORATORY ═══════════════════════════════ -->
+<section id="laboratory" class="section">
+  <p class="section-label">Section 04</p>
+  <h2 class="section-title">Laboratory Gallery</h2>
+  <p class="section-sub">
+    All commissioned builds stored in the live registry. Each card shows
+    material stack, validation status, safety rating, and production timestamp.
+    Refresh to see newly submitted builds.
+  </p>
+
+  <div style="display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="loadBuilds()">🔄 Refresh Gallery</button>
+  </div>
+
+  <div id="gallery-grid">
+    <div class="empty-state">
+      <div class="icon">🧪</div>
+      <p>No builds yet. Submit one in the Build Studio.</p>
+    </div>
+  </div>
+</section>
+<hr class="divider" />
+
+<!-- ═══════════════════════════ NUCLEAR HULL ═════════════════════════════ -->
+<section id="nuclear-hull" class="section">
+  <p class="section-label">Section 05</p>
+  <h2 class="section-title">Nuclear Shell Propulsion Hull</h2>
+  <p class="section-sub">
+    A solid-state nuclear propulsion design where the craft itself is the fuel
+    and the engine. The first nine elements (H → F) form concentric functional
+    layers — not a tin-can ship, but a synthetic star you sit inside.
+    Even layers manage inertia; odd layers carry reactivity.
+  </p>
+
+  <div class="grid2">
+    <div class="hull-diagram">
+
+      <div class="hull-layer h9">
+        <div class="hl-num" style="background:rgba(220,60,220,.25);color:#e06fe0;">9</div>
+        <div class="hl-info">
+          <h4>Fluorine (F) — Electromagnetic Skin</h4>
+          <p>Most electronegative element. Creates a massive electronegativity
+          gradient acting as an EM containment field, pulling stray particles
+          away from the hull.</p>
+        </div>
+        <span class="hl-role" style="color:#e06fe0;">Outer Field</span>
+      </div>
+
+      <div class="hull-layer h8">
+        <div class="hl-num" style="background:rgba(255,130,60,.25);color:#ff8a3c;">8</div>
+        <div class="hl-info">
+          <h4>Oxygen (O) — Plasma Buffer</h4>
+          <p>Gaseous plasma buffer layer between the carbon armor and the
+          outermost electromagnetic skin. Absorbs and redistributes
+          high-energy particles.</p>
+        </div>
+        <span class="hl-role" style="color:#ff8a3c;">Plasma Buffer</span>
+      </div>
+
+      <div class="hull-layer h7">
+        <div class="hl-num" style="background:rgba(60,160,255,.25);color:#3ca0ff;">7</div>
+        <div class="hl-info">
+          <h4>Nitrogen (N) — Plasma Buffer</h4>
+          <p>Inner plasma buffer. Together with Oxygen, forms the containment
+          field zone that cushions the carbon hull from direct particle
+          bombardment from the core.</p>
+        </div>
+        <span class="hl-role" style="color:#3ca0ff;">Plasma Buffer</span>
+      </div>
+
+      <div class="hull-layer h6">
+        <div class="hl-num" style="background:rgba(200,180,80,.25);color:#c8b450;">6</div>
+        <div class="hl-info">
+          <h4>Carbon (C) — Heat Shield &amp; Hull</h4>
+          <p>Graphene / carbon-carbon composite. Highest melting point of any
+          element. Structural armor that withstands the potential being emitted
+          by the inner layers without melting.</p>
+        </div>
+        <span class="hl-role" style="color:#c8b450;">Hull Armor</span>
+      </div>
+
+      <div class="hull-layer h5">
+        <div class="hl-num" style="background:rgba(80,200,120,.25);color:#50c878;">5</div>
+        <div class="hl-info">
+          <h4>Boron (B) — Throttle</h4>
+          <p>The power control layer. Shifting Boron density absorbs more or
+          fewer neutrons, allowing you to turn the reaction up or down at will.
+          The variable throttle of the engine.</p>
+        </div>
+        <span class="hl-role" style="color:#50c878;">Throttle</span>
+      </div>
+
+      <div class="hull-layer h4l">
+        <div class="hl-num" style="background:rgba(120,80,200,.25);color:#a060ef;">4</div>
+        <div class="hl-info">
+          <h4>Beryllium (Be) — Neutron Reflector</h4>
+          <p>Bounces energy from the inner well back inward, preventing leakage
+          toward the crew while providing the rigid stiffness required for
+          deep-space travel.</p>
+        </div>
+        <span class="hl-role" style="color:#a060ef;">Reflector Wall</span>
+      </div>
+
+      <div class="hull-layer h3">
+        <div class="hl-num" style="background:rgba(100,200,220,.25);color:#64c8dc;">3</div>
+        <div class="hl-info">
+          <h4>Lithium (Li) — Tritium Breeder</h4>
+          <p>Lithium-6 is famous in physics for being a tritium breeder — when
+          hit by neutrons it creates more fuel, sustaining the reaction.
+          The self-replenishing outer wall of the power well.</p>
+        </div>
+        <span class="hl-role" style="color:#64c8dc;">Fuel Breeder</span>
+      </div>
+
+      <div class="hull-layer h2">
+        <div class="hl-num" style="background:rgba(200,200,100,.25);color:#c8c864;">2</div>
+        <div class="hl-info">
+          <h4>Helium (He) — Containment Jacket</h4>
+          <p>Noble gas layer encasing the hydrogen source. Provides inert
+          separation between the raw hydrogen fuel and the reactive Lithium
+          breeder layer above it.</p>
+        </div>
+        <span class="hl-role" style="color:#c8c864;">Containment</span>
+      </div>
+
+      <div class="hull-layer h1">
+        <div class="hl-num" style="background:rgba(220,100,100,.25);color:#dc6464;">1</div>
+        <div class="hl-info">
+          <h4>Hydrogen (H) — The Source</h4>
+          <p>The innermost core. The "Well of Power." Raw hydrogen fuel at the
+          center of the craft. Combined with the Helium jacket and Lithium
+          breeder, this forms the self-sustaining energy source.</p>
+        </div>
+        <span class="hl-role" style="color:#dc6464;">Core / Source</span>
+      </div>
+
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <h4 style="margin-bottom:10px;">⚖️ Even / Odd Principle</h4>
+        <p style="font-size:.85rem;color:var(--muted);">
+          Even-numbered layers (He, Be, C, O) carry <strong style="color:var(--text);">inertia</strong> —
+          stability, reflection, shielding, buffering. Odd-numbered layers
+          (H, Li, B, N, F) carry <strong style="color:var(--text);">reactivity</strong> —
+          fuel, breeding, throttling, plasma, EM field. The even layers
+          prevent the odd layers from exploding.
+        </p>
+      </div>
+      <div class="card">
+        <h4 style="margin-bottom:10px;">🚀 Why it works as a ship</h4>
+        <ul style="font-size:.85rem;color:var(--muted);padding-left:18px;display:flex;flex-direction:column;gap:8px;">
+          <li>No external fuel tank — <strong style="color:var(--text);">the hull is the engine</strong></li>
+          <li>Layered inertia gradient manages extreme energy without melting</li>
+          <li>Beryllium wall protects crew from neutron flux</li>
+          <li>Boron throttle provides variable thrust control</li>
+          <li>Fluorine EM skin repels stray particles</li>
+          <li>Lithium-6 breeds its own replacement fuel</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-bottom:10px;">🔗 BioBot Connection</h4>
+        <p style="font-size:.85rem;color:var(--muted);">
+          Note that Beryllium (4) and Lithium (3) appear in both the BioBot
+          anatomical stack and the nuclear hull — demonstrating how the same
+          elemental properties (stiffness, low density, electrochemical
+          potential) serve biomimetic and propulsion engineering alike.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<hr class="divider" />
+
+<!-- ═══════════════════════════ COIN ECONOMY ═════════════════════════════ -->
+<section id="coin-economy" class="section">
+  <p class="section-label">Section 06</p>
+  <h2 class="section-title">AI Coin Economy &amp; Package Assembly</h2>
+  <p class="section-sub">
+    Every robot build draws on a wider economy of verified human ability,
+    materials, and capacity. The AI automatically assembles package coins —
+    matching labor, materials, and services into complete production sets
+    without requiring you to hunt down every individual token.
+  </p>
+
+  <div style="display:flex;flex-direction:column;gap:40px;">
+
+    <!-- AI Capability Profile -->
+    <div>
+      <h3 style="margin-bottom:16px;font-size:1.1rem;">🧠 AI Capability Profile</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">
+        For every participant, the AI maintains a live profile of what they can
+        realistically contribute — and what they need to grow.
+      </p>
+      <div class="profile-row">
+        <div class="profile-pill"><h5>Current Job</h5><p>Materials Engineer</p></div>
+        <div class="profile-pill"><h5>Skills</h5><p>Welding · Fabrication</p></div>
+        <div class="profile-pill"><h5>Equipment</h5><p>CNC Mill · Arc Welder</p></div>
+        <div class="profile-pill"><h5>Capacity</h5><p>3 days / week</p></div>
+        <div class="profile-pill"><h5>Local Market</h5><p>Honey · Metal Parts</p></div>
+        <div class="profile-pill"><h5>Development</h5><p>BioBot Assembly</p></div>
+      </div>
+      <div class="card" style="margin-top:14px;font-size:.85rem;">
+        <strong style="color:var(--accent);">AI Recommendation Example:</strong>
+        <p style="color:var(--muted);margin-top:8px;">
+          "You have land access, family support, interest in applied robotics,
+          and a potential local market. Begin with ten active BioBot
+          fabrication coins, access to Mg/In/Yb/Li/Be materials, protective
+          equipment, training credits, and a local lab-processing relationship."
+        </p>
+      </div>
+    </div>
+
+    <!-- Labor coins -->
+    <div>
+      <h3 style="margin-bottom:16px;font-size:1.1rem;">🪙 Labor Coins by Time</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">
+        Labor is divided into standardized time denominations, creating a
+        tradeable inventory of human capacity.
+      </p>
+      <div class="card">
+        <table class="coin-table">
+          <thead>
+            <tr><th>Denomination</th><th>Time Unit</th><th>Use Case</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="coin-val">½¢</span></td><td>1 hour of labor</td><td>Single task, inspection, fitting</td></tr>
+            <tr><td><span class="coin-val">½ dime</span></td><td>1 working day</td><td>Assembly shift, installation</td></tr>
+            <tr><td><span class="coin-val">Dime</span></td><td>1 working week</td><td>Component build phase</td></tr>
+            <tr><td><span class="coin-val">Special Issue</span></td><td>Crew / project phase</td><td>Full trade package, completed system</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Dream team -->
+    <div>
+      <h3 style="margin-bottom:16px;font-size:1.1rem;">👥 Collectible Labor Team — The "Dream Team" Set</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">
+        A complete labor coin set represents a roster of productive human
+        capacity. Collectors assemble real capability, not just names.
+        A full dream-team set is worth more because it can create something
+        tangible: a robot, a workshop, a community center.
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <span class="tag tag-blue">🔨 Carpenter</span>
+        <span class="tag tag-blue">🔧 Plumber</span>
+        <span class="tag tag-blue">🧱 Mason</span>
+        <span class="tag tag-blue">⚙️ Welder</span>
+        <span class="tag tag-blue">🏠 Roofer</span>
+        <span class="tag tag-blue">⚡ Electrician</span>
+        <span class="tag tag-blue">🏗 Equipment Operator</span>
+        <span class="tag tag-gold">📐 Architect</span>
+        <span class="tag tag-gold">🔍 Inspector</span>
+        <span class="tag tag-gold">🤖 BioBot Engineer</span>
+        <span class="tag tag-green">🍳 Cook</span>
+        <span class="tag tag-green">🚛 Transporter</span>
+      </div>
+    </div>
+
+    <!-- Habitat builder -->
+    <div>
+      <h3 style="margin-bottom:16px;font-size:1.1rem;">🏗 Habitat Builder Coin Set — Complete Package</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">
+        The AI assembles a complete building package from many individual
+        issuers. The recipient does not need to know every contractor —
+        the AI has verified availability, scheduling, materials, and permits.
+        The package coin only enters circulation when every component is secured.
+      </p>
+      <div class="grid2">
+        <div class="card">
+          <h4 style="margin-bottom:14px;font-size:.95rem;">🏡 Rural Two-Bedroom House Package</h4>
+          <ul class="habitat-checklist">
+            <li><span class="check-icon">✓</span> Site: confirmed</li>
+            <li><span class="check-icon">✓</span> Plan: approved</li>
+            <li><span class="check-icon">✓</span> Lumber: secured</li>
+            <li><span class="check-icon">✓</span> Steel &amp; fasteners: secured</li>
+            <li><span class="check-icon">✓</span> Concrete: secured</li>
+            <li><span class="check-icon">✓</span> Plumbing crew: scheduled</li>
+            <li><span class="check-icon">✓</span> Electrical crew: scheduled</li>
+            <li><span class="check-icon">✓</span> 100 labor days: reserved</li>
+            <li><span class="check-icon">✓</span> Equipment: reserved</li>
+            <li><span class="check-icon">✓</span> Food &amp; temporary lodging: covered</li>
+            <li><span class="check-icon">✓</span> Permits &amp; inspections: scheduled</li>
+            <li><span class="check-icon">✓</span> Contingency inventory: 15%</li>
+            <li><span class="check-icon" style="color:var(--accent);">★</span> Release status: <strong>ready</strong></li>
+          </ul>
+          <div style="margin-top:14px;font-size:.8rem;color:var(--muted);">
+            Estimated assembly: <strong style="color:var(--text);">six working days</strong>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <h4 style="margin-bottom:10px;font-size:.9rem;">💡 90% Discount Principle</h4>
+            <p style="font-size:.83rem;color:var(--muted);">
+              Businesses contribute promotional value in exchange for national
+              exposure and economy participation. A $100 hotel room costs far
+              less when it would otherwise sit empty. The AI distinguishes:
+            </p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+              <span class="tag tag-muted">retail price</span>
+              <span class="tag tag-muted">production cost</span>
+              <span class="tag tag-green">unused capacity</span>
+              <span class="tag tag-gold">promotional contribution</span>
+              <span class="tag tag-blue">expected redemption rate</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h4 style="margin-bottom:10px;font-size:.9rem;">🏛 No-Tax Model</h4>
+            <p style="font-size:.83rem;color:var(--muted);">
+              Direct production obligations replace layers of administration.
+              What changes is <em style="color:var(--text);">how the contribution is collected
+              and where the value goes</em>:
+            </p>
+            <ul style="font-size:.82rem;color:var(--muted);padding-left:16px;margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+              <li>Less money passing through administrative layers</li>
+              <li>More direct exchange of verified goods and work</li>
+              <li>Visible project inventory — promises and deliveries are public</li>
+              <li>AI identifies surplus and unused resources</li>
+              <li>Contributions connected to actual capacity</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4 style="margin-bottom:8px;font-size:.9rem;">🤖 The Central Idea</h4>
+            <p style="font-size:.85rem;color:var(--muted);">
+              <em style="color:var(--text);">"A coin collection becomes an inventory of human
+              ability, materials, places, and experiences. AI continuously
+              assembles those pieces into complete packages that people could
+              not easily build by themselves."</em>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<hr class="divider" />
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════════════ -->
+<footer>
+  <p>
+    <strong>Humanoid-BioBots™</strong> &nbsp;·&nbsp;
+    A <strong>Goudey Tradition™ LLC</strong> Licensed &amp; Copyrighted Product Line &nbsp;·&nbsp;
+    <strong>Star Craft™ Productions</strong> &nbsp;·&nbsp;
+    <strong>Fantasy Craft™ Engineers</strong>
+  </p>
+  <p style="margin-top:8px;">
+    eBay™ a subsidiary of <strong>Infinity™</strong> has rendered the digital coin image.
+    All rights reserved by Infinity™.
+  </p>
+  <p style="margin-top:16px;font-size:.75rem;">
+    Element stack: Mg(12) → In(49) → Yb(70) → Li(3) → Be(4) &nbsp;·&nbsp;
+    Nuclear hull: H(1) → He(2) → Li(3) → Be(4) → B(5) → C(6) → N(7) → O(8) → F(9)
+  </p>
+</footer>
+
+<!-- ═══════════════════════════ JS ════════════════════════════════════════ -->
+<script>
+  /* ── Presets ──────────────────────────────────────────────────────────── */
+  async function loadPresets() {
+    try {
+      const res = await fetch('/presets');
+      const data = await res.json();
+      const container = document.getElementById('preset-cards');
+      container.innerHTML = '';
+      const desc = {
+        single:  'Solo learning bot with structure, power, and shielding.',
+        couple:  'Paired support unit adding wiring for family coordination.',
+        family:  'Full family care bot with sensors, power, and education intent.'
+      };
+      Object.entries(data).forEach(([key, preset]) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.cursor = 'pointer';
+        card.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <h4 style="font-size:.95rem;text-transform:capitalize;">${key}</h4>
+            <span class="tag tag-muted" style="font-size:.68rem;">preset</span>
+          </div>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">${desc[key] || ''}</p>
+          <div>${(preset.parts||[]).map(p=>`<span class="tag tag-blue">${p.category} · ${p.atomicNumber}</span>`).join('')}</div>
+          <div style="margin-top:6px;">${(preset.intents||[]).map(i=>`<span class="tag tag-gold">${i}</span>`).join('')}</div>
+          <button class="btn btn-outline" style="margin-top:14px;font-size:.8rem;padding:7px 16px;"
+            onclick="loadPreset('${key}')">Load into Validator →</button>
+        `;
+        container.appendChild(card);
+      });
+    } catch(e) {
+      document.getElementById('preset-cards').innerHTML =
+        '<p style="color:var(--muted);font-size:.85rem;">Could not load presets (server offline).</p>';
+    }
+  }
+
+  async function loadPreset(key) {
+    try {
+      const res = await fetch('/presets');
+      const data = await res.json();
+      const p = data[key];
+      if (!p) return;
+      document.getElementById('v-name').value = p.name || key;
+      document.getElementById('v-parts').value = JSON.stringify(p.parts, null, 2);
+      document.getElementById('v-numbers').value = (p.numbers||[]).join(', ');
+      document.querySelectorAll('#validator .checkbox-group input').forEach(cb => {
+        cb.checked = (p.intents||[]).includes(cb.value);
+      });
+      document.getElementById('validator').scrollIntoView({behavior:'smooth'});
+    } catch(e) {}
+  }
+
+  /* ── Validate ─────────────────────────────────────────────────────────── */
+  async function runValidate() {
+    const box = document.getElementById('validate-result');
+    box.className = 'result-box';
+    box.style.display = 'block';
+    box.innerHTML = '<p style="color:var(--muted);">Validating…</p>';
+
+    let parts, numbers;
+    try { parts = JSON.parse(document.getElementById('v-parts').value || '[]'); }
+    catch(e) { box.innerHTML = '<p style="color:var(--red);">⚠ Invalid JSON in parts field.</p>'; return; }
+
+    try {
+      numbers = (document.getElementById('v-numbers').value || '')
+        .split(',').map(s=>s.trim()).filter(Boolean).map(Number);
+    } catch(e) { numbers = []; }
+
+    const intents = [...document.querySelectorAll('#validator .checkbox-group input:checked')]
+      .map(cb => cb.value);
+
+    const payload = {
+      name: document.getElementById('v-name').value || 'unnamed',
+      parts, numbers, intents
+    };
+
+    try {
+      const res = await fetch('/validate', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      renderValidationResult(box, data);
+    } catch(e) {
+      box.innerHTML = '<p style="color:var(--red);">⚠ Could not reach server.</p>';
+    }
+  }
+
+  function renderValidationResult(box, data) {
+    const safetyColor = {green:'var(--green)',yellow:'var(--yellow)',red:'var(--red)'};
+    const sc = safetyColor[data.safety] || 'var(--text)';
+    const statusOk = data.status === 'valid build';
+    box.className = `result-box show safety-${data.safety}`;
+    box.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <span style="font-size:1.5rem;">${statusOk ? '✅' : '❌'}</span>
+        <div>
+          <h4 style="color:${statusOk?'var(--green)':'var(--red)'};">${data.status}</h4>
+          <span style="font-size:.8rem;color:${sc};">Safety: ${data.safety.toUpperCase()}</span>
+        </div>
+      </div>
+      <div>
+        ${(data.ruleChecks||[]).map(rc=>`
+          <div class="rule-row">
+            <span class="rule-icon">${rc.passed?'✅':'❌'}</span>
+            <div>
+              <code style="font-size:.78rem;color:var(--muted);">${rc.rule}</code>
+              <p style="font-size:.82rem;">${rc.message}</p>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      ${data.suggestions && data.suggestions.length ? `
+        <div style="margin-top:14px;padding:12px;background:rgba(245,200,66,.07);border-radius:7px;border:1px solid rgba(245,200,66,.2);">
+          <strong style="font-size:.8rem;color:var(--gold);">Suggestions</strong>
+          <ul style="margin-top:8px;padding-left:16px;font-size:.83rem;color:var(--muted);">
+            ${data.suggestions.map(s=>`<li>${s}</li>`).join('')}
+          </ul>
+        </div>` : ''}
+      ${data.derivedNumbers ? `
+        <p style="margin-top:12px;font-size:.78rem;color:var(--muted);">
+          Derived numbers: <code>${data.derivedNumbers.join(', ')}</code>
+        </p>` : ''}
+    `;
+  }
+
+  function clearValidator() {
+    ['v-name','v-parts','v-numbers'].forEach(id => document.getElementById(id).value = '');
+    document.querySelectorAll('#validator .checkbox-group input').forEach(cb => cb.checked = false);
+    const box = document.getElementById('validate-result');
+    box.className = 'result-box';
+    box.innerHTML = '';
+  }
+
+  /* ── Submit Build ─────────────────────────────────────────────────────── */
+  async function submitBuild() {
+    const box = document.getElementById('build-result');
+    box.className = 'result-box';
+    box.style.display = 'block';
+    box.innerHTML = '<p style="color:var(--muted);">Commissioning…</p>';
+
+    let parts, numbers;
+    try { parts = JSON.parse(document.getElementById('b-parts').value || '[]'); }
+    catch(e) { box.innerHTML = '<p style="color:var(--red);">⚠ Invalid JSON in parts field.</p>'; return; }
+
+    numbers = (document.getElementById('b-numbers').value || '')
+      .split(',').map(s=>s.trim()).filter(Boolean).map(Number);
+
+    const intents = [...document.querySelectorAll('#build-studio .checkbox-group input:checked')]
+      .map(cb => cb.value);
+
+    const payload = {
+      name: document.getElementById('b-name').value || 'unnamed',
+      parts, numbers, intents
+    };
+
+    try {
+      const res = await fetch('/builds', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      box.className = 'result-box show';
+      const ok = data.validation && data.validation.status === 'valid build';
+      box.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:1.4rem;">${ok?'🚀':'⚠️'}</span>
+          <h4 style="color:${ok?'var(--green)':'var(--yellow);'}">
+            ${ok ? 'Build commissioned — ID: ' + data.id : 'Build stored with warnings'}
+          </h4>
+        </div>
+        <p style="font-size:.83rem;color:var(--muted);">Status: ${data.validation?.status || 'unknown'} · Safety: ${data.validation?.safety || 'unknown'}</p>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:6px;">Created: ${data.createdAt}</p>
+        <button class="btn btn-outline" style="margin-top:14px;font-size:.8rem;padding:7px 16px;"
+          onclick="loadBuilds();document.getElementById('laboratory').scrollIntoView({behavior:'smooth'})">
+          View in Gallery →
+        </button>
+      `;
+    } catch(e) {
+      box.innerHTML = '<p style="color:var(--red);">⚠ Could not reach server.</p>';
+    }
+  }
+
+  /* ── Gallery ──────────────────────────────────────────────────────────── */
+  async function loadBuilds() {
+    const grid = document.getElementById('gallery-grid');
+    grid.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading…</p></div>';
+    try {
+      const res = await fetch('/builds');
+      const builds = await res.json();
+      if (!builds.length) {
+        grid.innerHTML = '<div class="empty-state"><div class="icon">🧪</div><p>No builds yet. Submit one in the Build Studio.</p></div>';
+        return;
+      }
+      grid.innerHTML = builds.slice().reverse().map(b => {
+        const ok = b.validation?.status === 'valid build';
+        const safety = b.validation?.safety || 'green';
+        const sc = {green:'var(--green)',yellow:'var(--yellow)',red:'var(--red)'}[safety];
+        return `
+          <div class="card build-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <h4>${b.input?.name || 'Unnamed'}</h4>
+              <span style="font-size:.75rem;color:${ok?'var(--green)':'var(--red);'};">${ok?'✅ valid':'❌ invalid'}</span>
+            </div>
+            <p style="font-size:.75rem;color:var(--muted);margin-bottom:10px;">
+              ID: <code>${b.id}</code> · <span style="color:${sc};">Safety: ${safety}</span>
+            </p>
+            <div class="parts-list">
+              ${(b.input?.parts||[]).map(p=>`<span class="part-chip">${p.category} · ${p.atomicNumber}</span>`).join('')}
+            </div>
+            ${(b.input?.intents||[]).length ? `
+              <div style="margin-top:8px;">
+                ${b.input.intents.map(i=>`<span class="tag tag-gold" style="font-size:.68rem;">${i}</span>`).join('')}
+              </div>` : ''}
+            ${(b.validation?.suggestions||[]).length ? `
+              <div style="margin-top:10px;font-size:.78rem;color:var(--muted);">
+                💡 ${b.validation.suggestions[0]}
+              </div>` : ''}
+            <p style="margin-top:10px;font-size:.72rem;color:var(--muted);">
+              ${new Date(b.createdAt).toLocaleString()}
+            </p>
+          </div>
+        `;
+      }).join('');
+    } catch(e) {
+      grid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Could not load builds (server offline).</p></div>';
+    }
+  }
+
+  /* ── Init ─────────────────────────────────────────────────────────────── */
+  window.addEventListener('DOMContentLoaded', () => {
+    loadPresets();
+    loadBuilds();
+  });
+</script>
+</body>
+</html>
